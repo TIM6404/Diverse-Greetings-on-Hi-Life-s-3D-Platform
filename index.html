@@ -330,11 +330,11 @@ function bubUpd(){if(!bp)return;if(performance.now()>bt||!bp.g.visible){bub.clas
 $('#c').addEventListener('pointerdown',e=>dn=[e.clientX,e.clientY]);
 $('#c').addEventListener('pointerup',e=>{if(dn&&Math.hypot(e.clientX-dn[0],e.clientY-dn[1])<6)hit(e.clientX,e.clientY)});
 /* back-end counter: every event is POSTed as one row to a Google Form (responses land in the linked Sheet) */
-const GF={id:'YOUR_FORM_ID',ev:'entry.1111111111',sid:'entry.2222222222',dev:'entry.3333333333'};
+const GF={id:'1KaQ9cfWvIXbqWOmBlMGWyv1Wvv2fwqjvhAXWGhaW5ks',ev:'entry.1537072157',sid:'entry.1852427615',dev:'entry.1963461063'};
 const SID=(()=>{try{let v=sessionStorage.getItem('sid');if(!v){v=Math.random().toString(36).slice(2,10);sessionStorage.setItem('sid',v)}return v}catch(e){return Math.random().toString(36).slice(2,10)}})();
 function track(ev){try{const k='cnt_'+ev;localStorage.setItem(k,(+localStorage.getItem(k)||0)+1)}catch(e){}
 if(GF.id.indexOf('YOUR')==0)return;
-const u='https://docs.google.com/forms/d/e/'+GF.id+'/formResponse',b=new URLSearchParams();b.set(GF.ev,ev);b.set(GF.sid,SID);b.set(GF.dev,innerWidth<innerHeight?'mobile':'desktop');
+const u='https://docs.google.com/forms/d/'+(GF.id.indexOf('1FAIpQLS')==0?'e/':'')+GF.id+'/formResponse',b=new URLSearchParams();b.set(GF.ev,ev);b.set(GF.sid,SID);b.set(GF.dev,innerWidth<innerHeight?'mobile':'desktop');
 try{if(navigator.sendBeacon&&navigator.sendBeacon(u,b))return}catch(e){}
 try{fetch(u,{method:'POST',mode:'no-cors',body:b,keepalive:true}).catch(()=>{})}catch(e){}}
 try{if(!sessionStorage.getItem('v')){sessionStorage.setItem('v',1);track('visit')}}catch(e){track('visit')}
