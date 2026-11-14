@@ -332,11 +332,54 @@ $('#c').addEventListener('pointerup',e=>{if(dn&&Math.hypot(e.clientX-dn[0],e.cli
 /* back-end counter: every event is POSTed as one row to a Google Form (responses land in the linked Sheet) */
 const GF={id:'1KaQ9cfWvIXbqWOmBlMGWyv1Wvv2fwqjvhAXWGhaW5ks',ev:'entry.1537072157',sid:'entry.1852427615',dev:'entry.1963461063'};
 const SID=(()=>{try{let v=sessionStorage.getItem('sid');if(!v){v=Math.random().toString(36).slice(2,10);sessionStorage.setItem('sid',v)}return v}catch(e){return Math.random().toString(36).slice(2,10)}})();
-function track(ev){try{const k='cnt_'+ev;localStorage.setItem(k,(+localStorage.getItem(k)||0)+1)}catch(e){}
-if(GF.id.indexOf('YOUR')==0)return;
-const u='https://docs.google.com/forms/d/'+(GF.id.indexOf('1FAIpQLS')==0?'e/':'')+GF.id+'/formResponse',b=new URLSearchParams();b.set(GF.ev,ev);b.set(GF.sid,SID);b.set(GF.dev,innerWidth<innerHeight?'mobile':'desktop');
-try{if(navigator.sendBeacon&&navigator.sendBeacon(u,b))return}catch(e){}
-try{fetch(u,{method:'POST',mode:'no-cors',body:b,keepalive:true}).catch(()=>{})}catch(e){}}
+
+function track(ev){
+  try{const k='cnt_'+ev;localStorage.setItem(k,(+localStorage.getItem(k)||0)+1)}catch(e){}
+  if(GF.id.indexOf('YOUR')===0)return;
+  
+  // 1. 動態建立一個隱藏的 iframe 作為表單提交的目標 (避免畫面跳轉)
+  const iframeName = 'gf_frame_' + Date.now();
+  const iframe = document.createElement('iframe');
+  iframe.name = iframeName;
+  iframe.style.display = 'none';
+  document.body.appendChild(iframe);
+  
+  // 2. 動態建立要提交的表單
+  const form = document.createElement('form');
+  // 處理新舊版 Google Form URL 結構差異
+  const formActionId = GF.id.indexOf('1FAIpQLS') === 0 ? 'e/' + GF.id : GF.id;
+  form.action = 'https://docs.google.com/forms/d/' + formActionId + '/formResponse';
+  form.method = 'POST';
+  form.target = iframeName; // 指定將結果載入到隱藏的 iframe
+  form.style.display = 'none';
+  
+  // 3. 輔助函式：將資料轉為隱藏輸入框塞入表單
+  const addInput = (name, value) => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = name;
+    input.value = value;
+    form.appendChild(input);
+  };
+  
+  // 4. 將要追蹤的三個參數寫入表單
+  addInput(GF.ev, ev);
+  addInput(GF.sid, SID);
+  addInput(GF.dev, innerWidth < innerHeight ? 'mobile' : 'desktop');
+  
+  // 5. 將表單加入畫面並觸發提交
+  document.body.appendChild(form);
+  form.submit();
+  
+  // 6. 清理戰場：兩秒後移除動態產生的 DOM 元素，保持畫面乾淨
+  setTimeout(() => {
+    try {
+      document.body.removeChild(form);
+      document.body.removeChild(iframe);
+    } catch(e){}
+  }, 2000);
+}
+
 try{if(!sessionStorage.getItem('v')){sessionStorage.setItem('v',1);track('visit')}}catch(e){track('visit')}
 /* collisions: walkers bounce apart and say 拍謝 */
 const v4=new T.Vector3(),vg=$('#vig'),lc0=new T.Color(0xfff4e0),lc1=new T.Color(0xffc48b);let sy=null;
